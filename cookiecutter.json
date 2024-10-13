@@ -1,0 +1,6 @@
+{
+    "nombre_proyecto": "Nombre_del_proyecto_sin_espacios",
+    "titulo": "Titulo del proyecto puede incluir espacios",
+    "autor": "Tu Nombre",
+    "descripcion": "Una breve descripcion del proyecto para incluir en el README.md"
+}
