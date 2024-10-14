@@ -1,15 +1,17 @@
 # Imports de terceros
 from sqlalchemy import create_engine, text, Engine
-from sqlalchemy.exc import OperationalError, InterfaceError
+from sqlalchemy.exc import OperationalError, InterfaceError, SQLAlchemyError
 import pyodbc
+from decouple import Config, UndefinedValueError, RepositoryEnv
 
 # Imports propios
 from utils.bcolors import bcolors
 import utils.utilidades as utilidades
+from utils.logger import logger_info, logger_debug, logger_error
 
 CARPETA_ERRORES = 'ErroresApp'
 
-def conectar_bd(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str = None):
+def conectar_bd_pyodbc(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str = None):
     """
     Conecta a una base de datos SQL Server.
 
@@ -25,9 +27,9 @@ def conectar_bd(usuario: str, contrasena: str, servidor: str, base_datos: str, i
 
     """
     try:
-        conexion_sql_server = _crear_conexion(usuario, contrasena, servidor, base_datos, instancia)
+        conexion_sql_server = _crear_conexion_pyodbc(usuario, contrasena, servidor, base_datos, instancia)
         if conexion_sql_server:
-            _verificar_conexion(conexion_sql_server)
+            _verificar_conexion_pyodbc(conexion_sql_server)
             return conexion_sql_server
         else:
             return None
@@ -37,7 +39,7 @@ def conectar_bd(usuario: str, contrasena: str, servidor: str, base_datos: str, i
         utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
         return None
 
-def _crear_conexion(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str):
+def _crear_conexion_pyodbc(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str):
     """
     Crea una conexión a la base de datos SQL Server.
 
@@ -66,7 +68,7 @@ def _crear_conexion(usuario: str, contrasena: str, servidor: str, base_datos: st
         utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
         return None
 
-def _verificar_conexion(connection):
+def _verificar_conexion_pyodbc(connection):
     """
     Verifica la conexión a la base de datos.
 
@@ -87,3 +89,40 @@ def _verificar_conexion(connection):
         mensaje_error = f'Error al conectar a la base de datos: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
         utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+
+def conectar_bd_sqlalchemy():
+    """
+    Crea un motor de conexión a la base de datos utilizando SQLAlchemy y maneja errores si ocurren.
+    
+    :return: Motor de conexión a la base de datos si la conexión es exitosa, None en caso de error.
+    """
+    try:
+        config = Config(RepositoryEnv(utilidades.ruta_recurso('.env')))
+        # Intentar cargar las variables de entorno
+        usuario = config('USUARIO_DB')
+        contrasena = config('CONTRASENA_DB')
+        servidor = config('SERVIDOR_DB')
+        instancia = config('INSTANCIA_DB')
+        nombre_db = config('NOMBRE_DB')
+
+        # Crear la cadena de conexión para el motor de la base de datos
+        cadena_conexion = f"mssql+pyodbc://{usuario}:{contrasena}@{servidor}\\{instancia}/{nombre_db}?driver=ODBC+Driver+17+for+SQL+Server"
+
+        # Intentar crear el motor de conexión
+        engine = create_engine(cadena_conexion, echo=False)
+        return engine
+
+    except UndefinedValueError as e:
+        # Capturar errores relacionados con variables de entorno no definidas
+        logger_error.error(f"Error: Una o más variables de entorno no están definidas: {e}")
+        return None
+
+    except SQLAlchemyError as e:
+        # Capturar errores relacionados con la conexión a la base de datos o SQLAlchemy
+        logger_error.error(f"Error al crear el motor de la base de datos: {e}")
+        return None
+
+    except Exception as e:
+        # Capturar cualquier otro error inesperado
+        logger_error.error(f"Ocurrió un error inesperado al crear el motor de la base de datos: {e}")
+        return None

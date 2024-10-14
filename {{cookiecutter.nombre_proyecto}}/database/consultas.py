@@ -11,6 +11,7 @@ from datetime import datetime
 import pandas as pd
 from tqdm import tqdm
 from sqlalchemy import Engine, text
+from sqlalchemy.orm import sessionmaker
 import pyodbc
 
 
@@ -114,3 +115,25 @@ def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connecti
         print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
         utilidades.guardar_error(mensaje_error_otro, CARPETA_ERRORES)
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de erro
+
+def ejecutar_sp_consulta(engine: Engine, nombre_sp: str):
+    try:
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        # Construir la parte de la llamada al procedimiento almacenado con los parámetros y valores
+        llamada_sp = f"EXEC {nombre_sp}"
+
+        # # Ejecutar el procedimiento almacenado y cargar los resultados en un DataFrame
+        resultados = pd.read_sql_query(llamada_sp, engine)
+        
+        # logger_info.info(f'\t{len(resultados)} registros recuperados del procedimiento almacenado {nombre_sp}')
+        
+        return resultados
+    except Exception as error:
+        mensaje_error = f'Error al ejecutar el procedimiento almacenado "{nombre_sp}": {error}'
+        print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
+        return None
+    finally:
+        session.close()
+        print('Conexión finalizada a la base de datos')

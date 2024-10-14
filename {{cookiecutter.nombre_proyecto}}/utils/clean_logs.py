@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 # Importaciones propias
-from logger import logger_info, logger_debug, logger_error
+from utils.logger import logger_info, logger_debug, logger_error
 
 def clean_old_logs(directory: str, max_age_minutes: int):
     """
