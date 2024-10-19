@@ -36,7 +36,7 @@ def conectar_bd_pyodbc(usuario: str, contrasena: str, servidor: str, base_datos:
     except OperationalError as error:
         mensaje_error = f'Error al conectar a la base de datos: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)
         return None
 
 def _crear_conexion_pyodbc(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str):
@@ -65,7 +65,7 @@ def _crear_conexion_pyodbc(usuario: str, contrasena: str, servidor: str, base_da
     except pyodbc.Error as error:
         mensaje_error = f'Error al conectar a la base de datos: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)
         return None
 
 def _verificar_conexion_pyodbc(connection):
@@ -84,11 +84,11 @@ def _verificar_conexion_pyodbc(connection):
         cursor.execute("SELECT 1")
         mensaje_log_conexion_bdd = f'Conexión exitosa a la base de datos.'
         print(f"{bcolors.OK}{mensaje_log_conexion_bdd}{bcolors.RESET}")
-        utilidades.guardar_log_ejecucion(mensaje_log_conexion_bdd)
+        logger_info.info(mensaje_log_conexion_bdd)
     except pyodbc.Error as error:
         mensaje_error = f'Error al conectar a la base de datos: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)
 
 def conectar_bd_sqlalchemy():
     """
