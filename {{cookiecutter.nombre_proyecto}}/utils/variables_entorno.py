@@ -1,79 +1,56 @@
 # Imports de Python
 import os
-import tempfile
-from io import StringIO
-
-# Imports de terceros
-from dotenv import load_dotenv
-from decouple import config, UndefinedValueError
-from cryptography.fernet import Fernet
-from decouple import Config, RepositoryEnv
+from decouple import Config, RepositoryEnv, UndefinedValueError
 
 # Imports propios
-import utils.utilidades as utilidades
+from utils.utilidades import ruta_recurso
+from utils.logger import logger_info, logger_debug, logger_error
 
-class variables_entorno:
+
+class VariablesEntorno:
+    _instance = None  # Variable para almacenar la instancia Singleton
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(VariablesEntorno, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self):
+        if self._initialized:
+            return  # Evitar la inicialización si ya fue inicializado
+        self._initialized = True
+
+        # Inicializamos las variables a None
         self.USUARIO_DB = None
         self.CONTRASENA_DB = None
         self.SERVIDOR_DB = None
-        self.INSTANCIA_DB = None  # Especifica la instancia si es necesario
+        self.INSTANCIA_DB = None
         self.NOMBRE_DB = None
-        self.API_KEY = None
-        self.VALUE_API_KEY = None
-        self.BASE_URL = None
-        self.CORREO_REMITENTE = None
-        self.CONTRASENA_REMITENTE = None
-        self.EXPORTAR_A_EXCEL = None
-        # self.mensaje_correo = "El correo debe contener un INICIO y FIN PROCESO, sino lo contiene debe comunicarse con T.I:\n\n"
-        self.mensaje_correo = ""
-    
-    def cargar_variables_entorno_encriptadas(self, clave):
-        f = Fernet(clave)
-        with open(utilidades.ruta_recurso('.env.enc'), 'rb') as file:
-            datos_encriptados = file.read()
-        datos_desencriptados = f.decrypt(datos_encriptados)
-        datos_desencriptados_str = datos_desencriptados.decode()
+        self.NOMBRE_CARPETA_LOGS = None
 
-        # Leer la cadena desencriptada y procesar las variables de entorno
-        config = Config(StringIO(datos_desencriptados_str))
-        try:
-            self.USUARIO_DB = config('USER_DB')
-            self.CONTRASENA_DB = config('PASS_DB')
-            self.SERVIDOR_DB = config('SERVER_DB')
-            self.INSTANCIA_DB = config('INSTANCE_DB')
-            self.NOMBRE_DB = config('NAME_DB')
-            self.API_KEY = config('API_KEY')
-            self.VALUE_API_KEY = config('VALUE_API_KEY')
-            self.BASE_URL = config('BASE_URL')
-            self.CORREO_REMITENTE = config('CORREO_REMITENTE')
-            self.CONTRASENA_REMITENTE = config('CONTRASENA_REMITENTE')
-            self.EXPORTAR_A_EXCEL = config('EXPORTAR_A_EXCEL')
-        except UndefinedValueError as e:
-            # Manejar errores si alguna variable de entorno falta en el archivo desencriptado
-            print("Error al cargar variables de entorno:", e)
+        # Cargar automáticamente las variables de entorno al inicializar la clase
+        self.cargar_variables_entorno_local()
 
     def cargar_variables_entorno_local(self):
-        
-        load_dotenv(dotenv_path=utilidades.ruta_recurso('.env'))
-        
-        self.USUARIO_DB = config('USER_DB')
-        self.CONTRASENA_DB = config('PASS_DB')
-        self.SERVIDOR_DB = config('SERVER_DB')
-        self.INSTANCIA_DB = config('INSTANCE_DB')
-        self.NOMBRE_DB = config('NAME_DB')
-        self.API_KEY = config('API_KEY')
-        self.VALUE_API_KEY = config('VALUE_API_KEY')
-        self.BASE_URL = config('BASE_URL')
-        self.CORREO_REMITENTE = config('CORREO_REMITENTE')
-        self.CONTRASENA_REMITENTE = config('CONTRASENA_REMITENTE')
-        self.EXPORTAR_A_EXCEL = config('EXPORTAR_A_EXCEL')
-    
-    def concatenar_mensaje_correo(self, mensaje):
-        """
-        Concatena un mensaje al atributo mensaje_correo.
-        """
-        self.mensaje_correo += mensaje
+        try:
+            config = Config(RepositoryEnv(ruta_recurso('.env')))
+            
+            # Cargar las variables de entorno
+            self.USUARIO_DB = config('USUARIO_DB')
+            self.CONTRASENA_DB = config('CONTRASENA_DB')
+            self.SERVIDOR_DB = config('SERVIDOR_DB')
+            self.INSTANCIA_DB = config('INSTANCIA_DB')
+            self.NOMBRE_DB = config('NOMBRE_DB')
+            self.NOMBRE_CARPETA_LOGS = config('NOMBRE_CARPETA_LOGS')
 
-# Crear una instancia de la clase para acceder a las variables de entorno
-obj_variables_entorno = variables_entorno()
+            logger_info.info("Variables de entorno cargadas exitosamente")
+        except UndefinedValueError as e:
+            logger_error.error(f"Error al obtener una de las variables de entorno: {e}")
+            raise
+
+# Ejemplo de cómo acceder a las variables de entorno en otros archivos
+variables_entorno = VariablesEntorno()
+
+# Ahora en cualquier parte de tu código, puedes usar la instancia Singleton
+# Por ejemplo: variables_entorno.USUARIO_DB

@@ -5,6 +5,7 @@ import sys
 
 # Importaciones propias
 from utils.logger import logger_info, logger_debug, logger_error
+from database.conexion_db import conectar_bd_pyodbc, conectar_bd_sqlalchemy
 
 # Importaciones de terceros
 from decouple import Config, UndefinedValueError, RepositoryEnv
@@ -20,13 +21,16 @@ def main():
         
         print('Hola, este es el proyecto llamado "{{cookiecutter.nombre_proyecto}}" se ha inicializado correctamente')
         
+        # Instanciamos la clase para cargar las variables de entorno
+        variables_entorno = VariablesEntorno()
+        
         # Conectar a la base de datos
         # engine_database = conectar_bd_sqlalchemy()
-        engine_database = conectar_bd_pyodbc(USUARIO, CONTRASENA, SERVIDOR, NOMBRE_DB, INSTANCIA )
+        engine_database = conectar_bd_pyodbc(variables_entorno.USUARIO_DB, variables_entorno.CONTRASENA_DB, variables_entorno.SERVIDOR_DB, variables_entorno.NOMBRE_DB, variables_entorno.INSTANCIA_DB)
         
         if engine_database:
             try:
-                
+                print('Conexión a la base de datos')
                 # Opcional: exportar el resultado a CSV
                 # df.to_csv('Exportar/nombre_archivo.csv', index=False, sep='|', encoding='ansi')
             
