@@ -119,7 +119,7 @@ def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connecti
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de erro
 
 # ******ESTAS FUNCIONES SE UTILIZARÁN CUANDO LA CONEXIÓN A BASE DE DATOS SE REALICE POR MEDIO DE SQL ALCHEMY*********
-def ejecutar_sp_consulta(engine: Engine, nombre_sp: str):
+def ejecutar_sp_consulta_sin_parametros(engine: Engine, nombre_sp: str):
     try:
         Session = sessionmaker(bind=engine)
         session = Session()
