@@ -308,7 +308,6 @@ def prueba_insertar_datos_con_parametros_con_valores_tabla(USUARIO_DB: str, CONT
         # Se construye la consulta SQL utilizando el nombre del procedimiento almacenado y el parámetro de la tabla de valor.
         concatena_nombre_sp = f'{CALL {proc_name} (:tvp)}'
         sql = f"{concatena_nombre_sp}"
-        # sql = f"{{CALL {proc_name} (:tvp)}}"
         print('PRUEBA EJECUTAR')
         
         # Se ejecuta la consulta SQL utilizando la conexión conn, pasando los datos a través del parámetro data.
@@ -346,7 +345,6 @@ def prueba_insertar_datos_con_parametros_con_valores_tabla(USUARIO_DB: str, CONT
         # Se construye la consulta SQL utilizando el nombre del procedimiento almacenado y el parámetro de la tabla de valor.
         concatena_nombre_sp = f'{CALL {proc_name_dos} (:tvp)}'
         sql = f"{concatena_nombre_sp}"
-        # sql = f"{{CALL {proc_name_dos} (:tvp)}}"
         
         # Se ejecuta la consulta SQL utilizando la conexión conn, pasando los datos a través del parámetro data_tvp.
         conn.execute(text(sql), data_tvp)
@@ -379,7 +377,6 @@ def ejecutar_sp_insercion(nombre_sp:str, data_frame_errores: pd.DataFrame, caden
             dataos_parametros_con_valores_de_tabla = {"tvp": tupla_lista_errores}
             concatena_nombre_sp = f'{CALL {nombre_sp} (:tvp)}'
             sql = f"{concatena_nombre_sp}"
-            # sql = f"{{CALL {nombre_sp} (:tvp)}}"
             
             # registros_invalidos = validar_dataframe(data_frame_errores, 'FechaTareaLogPrincipal')
 
