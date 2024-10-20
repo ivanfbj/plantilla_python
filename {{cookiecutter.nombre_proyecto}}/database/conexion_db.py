@@ -9,8 +9,6 @@ from utils.bcolors import bcolors
 import utils.utilidades as utilidades
 from utils.logger import logger_info, logger_debug, logger_error
 
-CARPETA_ERRORES = 'ErroresApp'
-
 def conectar_bd_pyodbc(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str = None):
     """
     Conecta a una base de datos SQL Server.
@@ -90,39 +88,35 @@ def _verificar_conexion_pyodbc(connection):
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
         logger_error.error(mensaje_error)
 
-def conectar_bd_sqlalchemy():
-    """
-    Crea un motor de conexión a la base de datos utilizando SQLAlchemy y maneja errores si ocurren.
-    
-    :return: Motor de conexión a la base de datos si la conexión es exitosa, None en caso de error.
-    """
+def conectar_bd_sqlalchemy(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str = None):
     try:
-        config = Config(RepositoryEnv(utilidades.ruta_recurso('.env')))
-        # Intentar cargar las variables de entorno
-        usuario = config('USUARIO_DB')
-        contrasena = config('CONTRASENA_DB')
-        servidor = config('SERVIDOR_DB')
-        instancia = config('INSTANCIA_DB')
-        nombre_db = config('NOMBRE_DB')
-
-        # Crear la cadena de conexión para el motor de la base de datos
-        cadena_conexion = f"mssql+pyodbc://{usuario}:{contrasena}@{servidor}\\{instancia}/{nombre_db}?driver=ODBC+Driver+17+for+SQL+Server"
-
-        # Intentar crear el motor de conexión
-        engine = create_engine(cadena_conexion, echo=False)
-        return engine
-
-    except UndefinedValueError as e:
-        # Capturar errores relacionados con variables de entorno no definidas
-        logger_error.error(f"Error: Una o más variables de entorno no están definidas: {e}")
+        engine = _crear_conexion_sqlalchemy(usuario, contrasena, servidor, base_datos, instancia)
+        if engine:
+            _verificar_conexion_sqlalchemy(engine)
+            return engine
+        else:
+            return None
+    except OperationalError as error:
+        mensaje_error = f'Error al conectar a la base de datos: {error}'
+        print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
+        logger_error.error(mensaje_error)
         return None
 
-    except SQLAlchemyError as e:
-        # Capturar errores relacionados con la conexión a la base de datos o SQLAlchemy
-        logger_error.error(f"Error al crear el motor de la base de datos: {e}")
-        return None
+def _crear_conexion_sqlalchemy(usuario: str, contrasena: str, servidor: str, base_datos: str, instancia: str):
+    if instancia:
+        return create_engine(f"mssql+pyodbc://{usuario}:{contrasena}@{servidor}\\{instancia}/{base_datos}?driver=ODBC+Driver+17+for+SQL+Server")
+    else:
+        return create_engine(f"mssql+pyodbc://{usuario}:{contrasena}@{servidor}/{base_datos}?driver=ODBC+Driver+17+for+SQL+Server")
 
-    except Exception as e:
-        # Capturar cualquier otro error inesperado
-        logger_error.error(f"Ocurrió un error inesperado al crear el motor de la base de datos: {e}")
-        return None
+
+def _verificar_conexion_sqlalchemy(engine: Engine):
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+            
+            print(f"{bcolors.OK}Conexión exitosa a la base de datos.{bcolors.RESET}")
+            
+    except (OperationalError, InterfaceError) as error:
+        mensaje_error = f'Error al conectar a la base de datos: {error}'
+        print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
+        logger_error.error(mensaje_error)
