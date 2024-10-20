@@ -6,6 +6,7 @@ import sys
 # Importaciones propias
 from utils.logger import logger_info, logger_debug, logger_error
 from database.conexion_db import conectar_bd_pyodbc, conectar_bd_sqlalchemy
+from utils.variables_entorno import VariablesEntorno
 
 # Importaciones de terceros
 from decouple import Config, UndefinedValueError, RepositoryEnv
