@@ -134,6 +134,27 @@ def convert_list_to_data_frame(list_all_products: list) -> pd.DataFrame:
         logger_error.error(f"Error inesperado en convert_list_to_data_frame: {e}")
         raise Exception(f"Ocurrió un error inesperado en convert_list_to_data_frame: {e}") from e
 
+def exportar_lista_a_csv(lista_informacion: list, nombre_archivo: str):
+    """
+        Exporta la información contenida en un DataFrame a un archivo CSV.
+
+        Args:
+            data_frame (pandas.DataFrame): DataFrame que contiene los datos a exportar.
+    """
+    if lista_informacion:
+        df = pd.DataFrame(lista_informacion)
+        print(f'{bcolors.WARNING} \t{len(df)} registros exportados al CSV {nombre_archivo}.')
+        
+        # Obtener la fecha y hora actual
+        fecha_actual = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        nombre_carpeta_exportar = 'ArchivosExportados'
+        crear_carpeta(nombre_carpeta_exportar)
+        
+        # Crear el nombre del archivo con la fecha y hora actual
+        nombre_archivo = f'{nombre_carpeta_exportar}/{nombre_archivo}_{fecha_actual}.csv'
+        
+        df.to_csv(nombre_archivo, index=False, encoding='latin1',sep=';')
 
 # def exportar_informacion(lista_informacion: list, nombre_archivo: str):
 #     if lista_informacion:
