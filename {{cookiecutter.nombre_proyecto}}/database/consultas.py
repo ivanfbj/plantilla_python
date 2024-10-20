@@ -306,7 +306,9 @@ def prueba_insertar_datos_con_parametros_con_valores_tabla(USUARIO_DB: str, CONT
         data = {"tvp": [(1, "foo"), (2, "bar"), (3, "navi")]}
         
         # Se construye la consulta SQL utilizando el nombre del procedimiento almacenado y el parámetro de la tabla de valor.
-        sql = f"{{CALL {proc_name} (:tvp)}}"
+        concatena_nombre_sp = f'{CALL {proc_name} (:tvp)}'
+        sql = f"{concatena_nombre_sp}"
+        # sql = f"{{CALL {proc_name} (:tvp)}}"
         print('PRUEBA EJECUTAR')
         
         # Se ejecuta la consulta SQL utilizando la conexión conn, pasando los datos a través del parámetro data.
@@ -342,7 +344,9 @@ def prueba_insertar_datos_con_parametros_con_valores_tabla(USUARIO_DB: str, CONT
         data_tvp = {"tvp": data_dos}
         
         # Se construye la consulta SQL utilizando el nombre del procedimiento almacenado y el parámetro de la tabla de valor.
-        sql = f"{{CALL {proc_name_dos} (:tvp)}}"
+        concatena_nombre_sp = f'{CALL {proc_name_dos} (:tvp)}'
+        sql = f"{concatena_nombre_sp}"
+        # sql = f"{{CALL {proc_name_dos} (:tvp)}}"
         
         # Se ejecuta la consulta SQL utilizando la conexión conn, pasando los datos a través del parámetro data_tvp.
         conn.execute(text(sql), data_tvp)
@@ -373,7 +377,9 @@ def ejecutar_sp_insercion(nombre_sp:str, data_frame_errores: pd.DataFrame, caden
             # Convertir el DataFrame de errores a una lista de tuplas para los parámetros del procedimiento almacenado
             tupla_lista_errores = [tuple(row) for row in data_frame_errores.to_numpy()]
             dataos_parametros_con_valores_de_tabla = {"tvp": tupla_lista_errores}
-            sql = f"{{CALL {nombre_sp} (:tvp)}}"
+            concatena_nombre_sp = f'{CALL {nombre_sp} (:tvp)}'
+            sql = f"{concatena_nombre_sp}"
+            # sql = f"{{CALL {nombre_sp} (:tvp)}}"
             
             # registros_invalidos = validar_dataframe(data_frame_errores, 'FechaTareaLogPrincipal')
 
