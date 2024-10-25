@@ -10,7 +10,7 @@ from datetime import datetime
 # Imports de terceros
 import pandas as pd
 from tqdm import tqdm
-from sqlalchemy import Engine, text
+from sqlalchemy import Engine, text, create_engine
 from sqlalchemy.orm import sessionmaker
 import pyodbc
 
@@ -58,20 +58,20 @@ def consultar_registros_en_BDD(conexion_sql_server: pyodbc.Connection, parametro
             # Si no hay resultados, retornar DataFrame vacío
             mensaje_error_pyodbc = f'El procedimiento almacenado no retornó ningún resultado: {e}'
             print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
-            utilidades.guardar_error(mensaje_error_pyodbc, CARPETA_ERRORES)
+            logger_error.error(mensaje_error_pyodbc)
             return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
     
     except pyodbc.Error as e:
         # Manejar error de pyobc
         mensaje_error_pyodbc = f'Error al ejecutar el procedimiento almacenado: {e}'
         print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
-        utilidades.guardar_error(mensaje_error_pyodbc, CARPETA_ERRORES)
+        logger_error.error(mensaje_error_pyodbc)
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
     except Exception as e:
         # Manejar otros tipos de errores
         mensaje_error_otro = f'Ocurrió un error: {e}'
         print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
-        utilidades.guardar_error(mensaje_error_otro, CARPETA_ERRORES)
+        logger_error.error(mensaje_error_otro)
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
     
 def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connection) -> pd.DataFrame:
@@ -102,20 +102,20 @@ def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connecti
             # Si no hay resultados, retornar DataFrame vacío
             mensaje_error_pyodbc = f'La consulta no retornó ningún resultado: {e}'
             print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
-            utilidades.guardar_error(mensaje_error_pyodbc, CARPETA_ERRORES)
+            logger_error.error(mensaje_error_pyodbc)
             return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
     
     except pyodbc.Error as e:
         # Manejar error de pyobc
         mensaje_error_pyodbc = f'Error al ejecutar la consulta de correos_notificaciones: {e}'
         print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
-        utilidades.guardar_error(mensaje_error_pyodbc, CARPETA_ERRORES)
+        logger_error.error(mensaje_error_pyodbc)
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
     except Exception as e:
         # Manejar otros tipos de errores
         mensaje_error_otro = f'Ocurrió un error: {e}'
         print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
-        utilidades.guardar_error(mensaje_error_otro, CARPETA_ERRORES)
+        logger_error.error(mensaje_error_otro)
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de erro
 
 # ******ESTAS FUNCIONES SE UTILIZARÁN CUANDO LA CONEXIÓN A BASE DE DATOS SE REALICE POR MEDIO DE SQL ALCHEMY*********
@@ -163,7 +163,7 @@ def ejecutar_consulta(engine: Engine, consulta: str):
     except Exception as error:
         mensaje_error = f'Error al ejecutar la consulta: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)
         return None
     finally:
         session.close()
@@ -205,7 +205,7 @@ def ejecutar_sp_consulta_con_parametros(engine: Engine, nombre_sp: str, parametr
     except Exception as error:
         mensaje_error = f'Error al ejecutar el procedimiento almacenado "{nombre_sp}": {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)
         return None
     finally:
         session.close()
@@ -238,7 +238,7 @@ def ejecutar_sp_eliminar_duplicados(engine: Engine):
     except Exception as error:
         mensaje_error = f'Error al ejecutar el procedimiento almacenado {llamada_sp}: Error: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)
     finally:
         session.close()
         print('Conexión finalizada a la base de datos')
@@ -399,4 +399,4 @@ def ejecutar_sp_insercion(nombre_sp:str, data_frame_errores: pd.DataFrame, caden
         # Mostrar un mensaje de error si ocurre algún problema durante la ejecución del procedimiento almacenado
         mensaje_error = f'Se ha producido un error al ejecutar el procedimiento almacenado {nombre_sp}: {str(error)}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
-        utilidades.guardar_error(mensaje_error, CARPETA_ERRORES)
+        logger_error.error(mensaje_error)

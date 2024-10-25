@@ -173,16 +173,16 @@ def exportar_lista_a_csv(lista_informacion: list, nombre_archivo: str):
 #         df.to_csv(nombre_archivo, index=False, encoding='latin1',sep=';')
 
 
-# def crear_carpeta(nombre_carpeta: str):
-#     """
-#     Función para crear una carpeta si no existe.
-#     :param nombre_carpeta: El nombre de la carpeta a crear.
-#     """
-#     if not os.path.exists(nombre_carpeta):
-#         os.makedirs(nombre_carpeta)
-#         # print(f'Se ha creado la carpeta "{nombre_carpeta}"')
-#     # else:
-#     #     print(f'La carpeta "{nombre_carpeta}" ya existe')
+def crear_carpeta(nombre_carpeta: str):
+    """
+    Función para crear una carpeta si no existe.
+    :param nombre_carpeta: El nombre de la carpeta a crear.
+    """
+    if not os.path.exists(nombre_carpeta):
+        os.makedirs(nombre_carpeta)
+        # print(f'Se ha creado la carpeta "{nombre_carpeta}"')
+    # else:
+    #     print(f'La carpeta "{nombre_carpeta}" ya existe')
 
 
 # def guardar_log_ejecucion(mensaje_log_ejecucion: str, nombre_carpeta: str = 'LogEjecucion'):
