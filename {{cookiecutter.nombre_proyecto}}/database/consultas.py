@@ -18,6 +18,7 @@ import pyodbc
 # Imports propios
 from utils.bcolors import bcolors
 import utils.utilidades as utilidades
+from utils.logger import logger_info, logger_debug, logger_error
 
 CARPETA_ERRORES = 'ErroresConsultas'
 
@@ -94,7 +95,7 @@ def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connecti
             cursor.close()
             
             mensaje_log_ejecucion_bdd = f'Cantidad de registros obtenidos en correos_notificaciones de la BDD de EDM: {df.shape[0]}'
-            utilidades.guardar_log_ejecucion(mensaje_log_ejecucion_bdd)
+            logger_info.info(mensaje_log_ejecucion_bdd)
             print(f'{bcolors.WARNING}{mensaje_log_ejecucion_bdd}{bcolors.RESET}')
             
             return df
@@ -103,20 +104,63 @@ def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connecti
             mensaje_error_pyodbc = f'La consulta no retornó ningún resultado: {e}'
             print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
             logger_error.error(mensaje_error_pyodbc)
-            return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
+            raise
     
     except pyodbc.Error as e:
         # Manejar error de pyobc
         mensaje_error_pyodbc = f'Error al ejecutar la consulta de correos_notificaciones: {e}'
         print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
         logger_error.error(mensaje_error_pyodbc)
-        return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
+        raise
     except Exception as e:
         # Manejar otros tipos de errores
         mensaje_error_otro = f'Ocurrió un error: {e}'
         print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
         logger_error.error(mensaje_error_otro)
-        return pd.DataFrame()  # Retorna un DataFrame vacío en caso de erro
+        raise
+
+def ejecutar_consulta_pyodbc(conexion_sql_server: pyodbc.Connection, consulta: str) -> pd.DataFrame:
+    try:
+        # Llamar al procedimiento almacenado y obtener el resultado
+        cursor = conexion_sql_server.cursor()
+
+        # Consulta SQL
+        cursor.execute(consulta)
+        
+        try:
+            # Obtener los resultados y cargarlos en un DataFrame
+            resultados = [tuple(row) for row in cursor.fetchall()]  # Desempaquetar las tuplas internas
+            columnas = [column[0] for column in cursor.description]
+
+            df = pd.DataFrame(resultados, columns=columnas)
+
+            # Cerrar el cursor
+            cursor.close()
+            
+            mensaje_log_ejecucion_bdd = f'Cantidad de registros obtenidos en correos_notificaciones de la BDD de EDM: {df.shape[0]}'
+            logger_info.info(mensaje_log_ejecucion_bdd)
+            print(f'{bcolors.WARNING}{mensaje_log_ejecucion_bdd}{bcolors.RESET}')
+            
+            return df
+        except pyodbc.ProgrammingError as e:
+            # Si no hay resultados, retornar DataFrame vacío
+            mensaje_error_pyodbc = f'La consulta no retornó ningún resultado: {e}'
+            print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
+            logger_error.error(mensaje_error_pyodbc)
+            raise
+    
+    except pyodbc.Error as e:
+        # Manejar error de pyobc
+        mensaje_error_pyodbc = f'Error al ejecutar la consulta de correos_notificaciones: {e}'
+        print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
+        logger_error.error(mensaje_error_pyodbc)
+        raise
+    except Exception as e:
+        # Manejar otros tipos de errores
+        mensaje_error_otro = f'Ocurrió un error: {e}'
+        print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
+        logger_error.error(mensaje_error_otro)
+        raise
 
 # ******ESTAS FUNCIONES SE UTILIZARÁN CUANDO LA CONEXIÓN A BASE DE DATOS SE REALICE POR MEDIO DE SQL ALCHEMY*********
 def ejecutar_sp_consulta_sin_parametros(engine: Engine, nombre_sp: str):
@@ -139,7 +183,7 @@ def ejecutar_sp_consulta_sin_parametros(engine: Engine, nombre_sp: str):
         return None
     finally:
         session.close()
-        print('Conexión finalizada a la base de datos')
+        logger_info.info('Conexión finalizada a la base de datos')
 
 def ejecutar_consulta(engine: Engine, consulta: str):
     """
@@ -167,7 +211,7 @@ def ejecutar_consulta(engine: Engine, consulta: str):
         return None
     finally:
         session.close()
-        print(f'{bcolors.WARNING}Conexión finalizada a la base de datos{bcolors.RESET}')
+        logger_info.info(f'{bcolors.WARNING}Conexión finalizada a la base de datos{bcolors.RESET}')
 
 
 def ejecutar_sp_consulta_con_parametros(engine: Engine, nombre_sp: str, parametros: dict):
@@ -209,7 +253,7 @@ def ejecutar_sp_consulta_con_parametros(engine: Engine, nombre_sp: str, parametr
         return None
     finally:
         session.close()
-        print('Conexión finalizada a la base de datos')
+        logger_info.info('Conexión finalizada a la base de datos')
 
 
 def ejecutar_sp_eliminar_duplicados(engine: Engine):
@@ -241,7 +285,7 @@ def ejecutar_sp_eliminar_duplicados(engine: Engine):
         logger_error.error(mensaje_error)
     finally:
         session.close()
-        print('Conexión finalizada a la base de datos')
+        logger_info.info('Conexión finalizada a la base de datos')
 
 
 def prueba_insertar_datos_con_parametros_con_valores_tabla(USUARIO_DB: str, CONTRASENA_DB: str, SERVIDOR_DB: str, INSTANCIA_DB: str, NOMBRE_DB: str):
