@@ -81,7 +81,7 @@ def _verificar_conexion_pyodbc(connection):
         cursor = connection.cursor()
         cursor.execute("SELECT 1")
         mensaje_log_conexion_bdd = f'Conexión exitosa a la base de datos.'
-        print(f"{bcolors.OK}{mensaje_log_conexion_bdd}{bcolors.RESET}")
+        # print(f"{bcolors.OK}{mensaje_log_conexion_bdd}{bcolors.RESET}")
         logger_info.info(mensaje_log_conexion_bdd)
     except pyodbc.Error as error:
         mensaje_error = f'Error al conectar a la base de datos: {error}'
@@ -114,9 +114,11 @@ def _verificar_conexion_sqlalchemy(engine: Engine):
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
             
-            print(f"{bcolors.OK}Conexión exitosa a la base de datos.{bcolors.RESET}")
+            # print(f"{bcolors.OK}Conexión exitosa a la base de datos.{bcolors.RESET}")
+            logger_info.info('Conexión exitosa a la base de datos')            
             
     except (OperationalError, InterfaceError) as error:
         mensaje_error = f'Error al conectar a la base de datos: {error}'
         print(f"{bcolors.FAIL}{mensaje_error}{bcolors.RESET}")
         logger_error.error(mensaje_error)
+        raise
