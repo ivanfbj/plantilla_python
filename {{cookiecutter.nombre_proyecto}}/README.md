@@ -16,7 +16,7 @@ Desarrollado por: {{cookiecutter.autor}}
 Se recomienda usar GIT Bash para los comandos de instalación e inicializar el proyecto.
 
 1. Descargar o clonar el repositorio con el código fuente.
-2. Dentro de la carpeta el proyecto "LogErroresIntegracionVTEX" es necesario crear un entorno virtual para instalar todas las librerías para ejecutar el código sin ningúna novedad.
+2. Dentro de la carpeta el proyecto "{{cookiecutter.nombre_proyecto}}" es necesario crear un entorno virtual para instalar todas las librerías para ejecutar el código sin ningúna novedad.
     - Para crear el entorno virtual se realiza dentro de la carpeta del proyecto y ejecutando el siguiente comando `python -m venv venv`
 3. Una vez creado el entorno virtual de trabajo se debe inicializar con el comando `source venv/Scripts/activate`
 4. Luego se instalan todas las dependencias necesarias para ejecutar el programa, la lista y versiones de las dependendicas se encuentra en el archivo `requirements.txt` y el comando para realizar la instalación es `pip install -r requirements.txt`
@@ -49,7 +49,7 @@ En el momento de ejecutar el código se presentan los siguientes pasos generales
 ## Explicación del Comando para compilar y generar archivo .exe
 
 ```Bash
-    pyinstaller --add-data ".env:." --onefile --icon=terminal.ico --clean --name        {{cookiecutter.nombre_proyecto}} main.py
+    pyinstaller --add-data ".env:." --onefile --icon=terminal.ico --clean --name {{cookiecutter.nombre_proyecto}} main.py
 ```
 
 El archivo `.env.template` contiene la estructura de ejemplo que debe contener el proyecto.
