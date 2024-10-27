@@ -8,9 +8,9 @@ from utils.logger import logger_info, logger_debug, logger_error
 from database.conexion_db import conectar_bd_pyodbc, conectar_bd_sqlalchemy
 from database.consultas import ejecutar_consulta
 from utils.variables_entorno import VariablesEntorno
+from utils.bcolors import bcolors
 
 # Importaciones de terceros
-from decouple import Config, UndefinedValueError, RepositoryEnv
 import sqlalchemy
 import pyodbc
 
@@ -43,7 +43,7 @@ def main():
                     FROM SCHEMA.NombreTablaAConsultar WITH(NOLOCK)
                     WHERE Fecha BETWEEN '2024-01-01 00:00:00' AND '2024-01-31 23:59:59'
                     '''
-                df_data = ejecutar_consulta(engine_database, query_sql)
+                df_data = ejecutar_consulta_pyodbc(engine_database, query_sql)
                 
                 # Opcional: exportar el resultado a CSV
                 df_data.to_csv(f'{nombre_carpeta_exportacion}/nombre_archivo.csv', index=False, sep='|', encoding='ansi')
