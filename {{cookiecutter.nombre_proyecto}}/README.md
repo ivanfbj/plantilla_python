@@ -49,7 +49,7 @@ En el momento de ejecutar el código se presentan los siguientes pasos generales
 ## Explicación del Comando para compilar y generar archivo .exe
 
 ```Bash
-    pyinstaller --add-data ".env:." --onefile --icon=terminal.ico --clean --name {{cookiecutter.nombre_proyecto}} main.py
+    pyinstaller --add-data ".env:." --onefile --icon=terminal.ico --clean --name {{cookiecutter.nombre_proyecto}} --hidden-import=pyodbc main.py
 ```
 
 El archivo `.env.template` contiene la estructura de ejemplo que debe contener el archivo .env para las variables de entorno.
