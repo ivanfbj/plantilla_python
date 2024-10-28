@@ -31,19 +31,19 @@ Se recomienda usar GIT Bash para los comandos de instalación e inicializar el p
 ## Explicación general de la lógica del código
 
 ### Archivos:
-- **bcolors.py**: Clase que permite implementar colores para resaltar mensajes en la consola.
-- **consultas.py**: Contiene funciones que ejecutan alguna consulta o procedimiento almacenado sobre la base de datos.
-- **conexion_db.py**: Contiene la función para conectarse a la base de datos.
-- **utilidades.py**: Contiene funciones con diferentes funcionalidades, como por ejemplo crear carpeta, guardar log de ejecución, guardar errores, inicializar los enpoint de la API de Intrena, ya sea para crear, consultar, actualizar, inactivar o activar registros, entre otras.
+- **utils/bcolors.py**: Clase que permite implementar colores para resaltar mensajes en la consola.
+- **database/consultas.py**: Contiene funciones que ejecutan alguna consulta o procedimiento almacenado sobre la base de datos.
+- **database/conexion_db.py**: Contiene la función para conectarse a la base de datos ya sea por la librería SqlAlchemy o pyodbc.
+- **utils/utilidades.py**: Contiene funciones con diferentes funcionalidades, como por ejemplo crear carpeta, ruta del recurso para cuando hay que accerder a archivo dentro del proyecto, convertir lista en data frame, exportar lista a csv, se pueden implmenetar funcionalidades genericas.
 - **main.py**: Es el archivo principal que ejecuta las funcionalidad del proyecto, se encarga de cargar las variables de entorno que contiene las credenciales a la base de datos, API y hacer uso de las diferentes clases y funciones para llevar a cabo el flujo del proceso.
-- **variables_entorno.py**: Es una clase que almacena la información de las variables de entorno para poderla utilizar desde cualquier otra clase que requiera los datos de conexión a la base de datos o al API.
+- **utils/variables_entorno.py**: Es una clase que almacena la información de las variables de entorno para poderla utilizar desde cualquier otra clase que requiera los datos de conexión a la base de datos o al API.
 
 ### Flujo
 
 En el momento de ejecutar el código se presentan los siguientes pasos generales:
-1. Descripción paso 1
-2. Descripción paso 2
-3. Descripción paso 3
+1. Inicializa los archivos de logger: info, debug y error.
+2. Crear la carpeta Exportar en donde quedarán los archivos exportados con la información de la base de datos.
+3. Instancia un objeto con las variables de entorno para utilizarlas en cualquier parte del código.
 4. Descripción paso 4
 
 ## Explicación del Comando para compilar y generar archivo .exe
@@ -52,7 +52,7 @@ En el momento de ejecutar el código se presentan los siguientes pasos generales
     pyinstaller --add-data ".env:." --onefile --icon=terminal.ico --clean --name {{cookiecutter.nombre_proyecto}} main.py
 ```
 
-El archivo `.env.template` contiene la estructura de ejemplo que debe contener el proyecto.
+El archivo `.env.template` contiene la estructura de ejemplo que debe contener el archivo .env para las variables de entorno.
 
 **--onefile**: Este parámetro indica que se requiere generar un solo archivo ejecutable en lugar de varios archivos. Esto significa que todos los archivos necesarios para ejecutar el programa se incluirán en un único archivo ejecutable.
 
@@ -60,7 +60,7 @@ El archivo `.env.template` contiene la estructura de ejemplo que debe contener e
 
 **--clean**: Este parámetro indica que se requiere limpiar los archivos temporales generados por pyinstaller durante el proceso de construcción del ejecutable.
 
-**--name AppActualizarDatosEnIntrena**: Este parámetro especifica el nombre del archivo ejecutable que se generará. En este caso, el nombre del ejecutable será AppActualizarDatosEnIntrena.
+**--name {{cookiecutter.nombre_proyecto}}**: Este parámetro especifica el nombre del archivo ejecutable que se generará. En este caso, el nombre del ejecutable será {{cookiecutter.nombre_proyecto}}.
 
 **main.py**: Este es el archivo principal de tu aplicación que pyinstaller convertirá en un ejecutable.
 
