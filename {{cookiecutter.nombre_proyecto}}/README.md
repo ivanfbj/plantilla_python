@@ -62,6 +62,8 @@ El archivo `.env.template` contiene la estructura de ejemplo que debe contener e
 
 **--name {{cookiecutter.nombre_proyecto}}**: Este parámetro especifica el nombre del archivo ejecutable que se generará. En este caso, el nombre del ejecutable será {{cookiecutter.nombre_proyecto}}.
 
+**--hidden-import=pyodbc**: asegura que PyInstaller incluya el módulo pyodbc en el ejecutable final, evitando errores de importación en tiempo de ejecución, especialmente útil para conexiones a bases de datos SQL.
+
 **main.py**: Este es el archivo principal de tu aplicación que pyinstaller convertirá en un ejecutable.
 
 ___
