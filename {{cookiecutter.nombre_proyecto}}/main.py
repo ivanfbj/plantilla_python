@@ -9,6 +9,7 @@ from database.conexion_db import conectar_bd_pyodbc, conectar_bd_sqlalchemy
 from database.consultas import ejecutar_consulta
 from utils.variables_entorno import VariablesEntorno
 from utils.bcolors import bcolors
+from utils.utilidades import crear_carpeta
 
 # Importaciones de terceros
 import sqlalchemy
