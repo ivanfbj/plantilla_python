@@ -6,7 +6,7 @@ import sys
 # Importaciones propias
 from utils.logger import logger_info, logger_debug, logger_error
 from database.conexion_db import conectar_bd_pyodbc, conectar_bd_sqlalchemy
-from database.consultas import ejecutar_consulta
+from database.consultas import ejecutar_consulta, ejecutar_consulta_pyodbc
 from utils.variables_entorno import VariablesEntorno
 from utils.bcolors import bcolors
 from utils.utilidades import crear_carpeta
