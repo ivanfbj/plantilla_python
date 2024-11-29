@@ -20,8 +20,6 @@ from utils.bcolors import bcolors
 import utils.utilidades as utilidades
 from utils.logger import logger_info, logger_debug, logger_error
 
-CARPETA_ERRORES = 'ErroresConsultas'
-
 # ******ESTAS FUNCIONES SE UTILIZARÁN CUANDO LA CONEXIÓN A BASE DE DATOS SE REALICE POR MEDIO DE PYODBC*********
 
 def consultar_registros_en_BDD(conexion_sql_server: pyodbc.Connection, parametro: str) -> pd.DataFrame:
@@ -51,7 +49,7 @@ def consultar_registros_en_BDD(conexion_sql_server: pyodbc.Connection, parametro
             cursor.close()
             
             mensaje_log_ejecucion_bdd = f'Cantidad de registros obtenidos en {parametro} de la BDD de EDM: {df.shape[0]}'
-            utilidades.guardar_log_ejecucion(mensaje_log_ejecucion_bdd)
+            logger_info.info(mensaje_log_ejecucion_bdd)
             print(f'{bcolors.WARNING}{mensaje_log_ejecucion_bdd}{bcolors.RESET}')
             
             return df

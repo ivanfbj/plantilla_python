@@ -74,4 +74,10 @@ def main():
         logger_error.error("********** FIN de la ejecución **********")
 
 if __name__ == "__main__":
+    # Cuando se ejecuta desde el archivo .exe detiene la ventana de la consola hasta presionar Enter
+    # if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    #     input("Presiona Enter para iniciar el proceso...")
     main()
+
+    # if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    #     input("Presiona Enter para salir...") 
