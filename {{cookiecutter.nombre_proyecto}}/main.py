@@ -10,6 +10,7 @@ from database.consultas import ejecutar_consulta, ejecutar_consulta_pyodbc
 from utils.variables_entorno import VariablesEntorno
 from utils.bcolors import bcolors
 from utils.utilidades import crear_carpeta
+from database.queries import GET_CONSULTA_1_DB
 
 # Importaciones de terceros
 import sqlalchemy
@@ -38,13 +39,7 @@ def main():
             try:
                 print('Conexión a la base de datos')
                 
-                query_sql = '''
-                    SELECT TOP 10
-                    *
-                    FROM SCHEMA.NombreTablaAConsultar WITH(NOLOCK)
-                    WHERE Fecha BETWEEN '2024-01-01 00:00:00' AND '2024-01-31 23:59:59'
-                    '''
-                df_data = ejecutar_consulta_pyodbc(engine_database, query_sql)
+                df_data = ejecutar_consulta_pyodbc(engine_database, GET_CONSULTA_1_DB)
                 
                 # Opcional: exportar el resultado a CSV
                 df_data.to_csv(f'{nombre_carpeta_exportacion}/nombre_archivo.csv', index=False, sep='|', encoding='ansi')
