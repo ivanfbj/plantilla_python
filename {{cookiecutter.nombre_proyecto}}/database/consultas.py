@@ -135,10 +135,6 @@ def ejecutar_consulta_pyodbc(conexion_sql_server: pyodbc.Connection, consulta: s
             # Cerrar el cursor
             cursor.close()
             
-            mensaje_log_ejecucion_bdd = f'Cantidad de registros obtenidos en correos_notificaciones de la BDD de EDM: {df.shape[0]}'
-            logger_info.info(mensaje_log_ejecucion_bdd)
-            print(f'{bcolors.WARNING}{mensaje_log_ejecucion_bdd}{bcolors.RESET}')
-            
             return df
         except pyodbc.ProgrammingError as e:
             # Si no hay resultados, retornar DataFrame vacío
