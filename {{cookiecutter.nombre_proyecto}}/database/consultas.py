@@ -72,7 +72,55 @@ def consultar_registros_en_BDD(conexion_sql_server: pyodbc.Connection, parametro
         print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
         logger_error.error(mensaje_error_otro)
         return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
+
+def ejecutar_sp_consulta_sin_parametros_pyodbc(conexion_sql_server: pyodbc.Connection, nombre_procedimiento_almacenado: str) -> pd.DataFrame:
     
+    try:
+        # Llamar al procedimiento almacenado y obtener el resultado
+        cursor = conexion_sql_server.cursor()
+        cursor.execute(f"EXEC {nombre_procedimiento_almacenado}")
+        
+        # Verificar si hay resultados antes de llamar a fetchall()
+        if cursor.description is None:
+            mensaje_error_pyodbc = 'El procedimiento almacenado no retornó ningún conjunto de resultados.'
+            print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
+            logger_error.error(mensaje_error_pyodbc)
+        
+        try:
+            # Obtener los resultados y cargarlos en un DataFrame
+            resultados = [tuple(row) for row in cursor.fetchall()]  # Desempaquetar las tuplas internas
+            columnas = [column[0] for column in cursor.description]
+
+            df = pd.DataFrame(resultados, columns=columnas)
+
+            # Cerrar el cursor
+            cursor.close()
+            
+            mensaje_log_ejecucion_bdd = f'Cantidad de registros obtenidos de la BDD de EDM: {df.shape[0]}'
+            logger_info.info(mensaje_log_ejecucion_bdd)
+            print(f'{bcolors.WARNING}{mensaje_log_ejecucion_bdd}{bcolors.RESET}')
+            
+            return df
+        except pyodbc.ProgrammingError as e:
+            # Si no hay resultados, retornar DataFrame vacío
+            mensaje_error_pyodbc = f'El procedimiento almacenado no retornó ningún resultado: {e}'
+            print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
+            logger_error.error(mensaje_error_pyodbc)
+            return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
+    
+    except pyodbc.Error as e:
+        # Manejar error de pyodbc
+        mensaje_error_pyodbc = f'Error al ejecutar el procedimiento almacenado: {e}'
+        print(f'{bcolors.FAIL}{mensaje_error_pyodbc}{bcolors.RESET}')
+        logger_error.error(mensaje_error_pyodbc)
+        return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
+    except Exception as e:
+        # Manejar otros tipos de errores
+        mensaje_error_otro = f'Ocurrió un error: {e}'
+        print(f'{bcolors.FAIL}{mensaje_error_otro}{bcolors.RESET}')
+        logger_error.error(mensaje_error_otro)
+        return pd.DataFrame()  # Retorna un DataFrame vacío en caso de error
+
 def consultar_correos_notificaciones_en_BDD(conexion_sql_server: pyodbc.Connection) -> pd.DataFrame:
     try:
         # Llamar al procedimiento almacenado y obtener el resultado
