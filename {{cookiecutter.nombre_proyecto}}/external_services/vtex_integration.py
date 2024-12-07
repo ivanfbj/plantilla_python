@@ -6,6 +6,12 @@ from datetime import datetime, timedelta, timezone
 # Importaciones propias
 from utils.logger import logger_info, logger_debug, logger_error
 
+# Importaciones de terceros
+import pandas as pd
+from tqdm import tqdm
+import aiohttp
+from tqdm.asyncio import tqdm_asyncio
+
 def build_creation_date_param(days_back):
     """
     Construye el parámetro f_creationDate con un rango de fechas dinámico.
@@ -100,3 +106,58 @@ params = {
     
 df_full_information = procesar_datos_bodegas(df_apis_vtex, endpoint_list_orders_vtex, estados_a_filtrar, f_creation_date, params, nombre_carpeta_exportacion, logger_info)
 """
+
+async def fetch_inventory_async(session, base_url, headers, warehouseId):
+    try:
+        async with session.get(base_url, headers=headers) as response:
+            if response.status == 200:
+                data = await response.json()
+
+                # Validar que 'balance' esté en la respuesta y sea una lista
+                if 'balance' in data and isinstance(data['balance'], list):
+                    # Buscar el warehouseId específico
+                    matching_warehouse = next(
+                        (entry for entry in data['balance'] if entry['warehouseId'] == warehouseId),
+                        None
+                    )
+                    if matching_warehouse:
+                        return matching_warehouse.get('totalQuantity', 'N/A')
+                    else:
+                        return f"No data for warehouseId {warehouseId}"
+                else:
+                    return "No balance data returned by VTEX"
+            else:
+                return f"Error {response.status}: {response.reason}"
+    except Exception as e:
+        return f"Exception occurred: {str(e)}"
+
+async def list_inventory_by_sku_async(data_frame: pd.DataFrame):
+    # Agregar columnas adicionales al DataFrame
+    data_frame['DatosVTEX'] = 'DatosVtex->'
+    data_frame['totalQuantity'] = None
+
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for index, row in data_frame.iterrows():
+            base_url = row['ApiCliente']
+            warehouseId = row['warehouseId']
+            app_key = row['AppKey']
+            app_token = row['AppToken']
+
+            headers = {
+                'Accept': "application/json",
+                'Content-Type': "application/json",
+                'X-VTEX-API-AppKey': app_key,
+                'X-VTEX-API-AppToken': app_token,
+            }
+
+            # Crear una tarea para cada solicitud
+            tasks.append(fetch_inventory_async(session, base_url, headers, warehouseId))
+
+        # Ejecutar las tareas de manera concurrente
+        results = await tqdm_asyncio.gather(*tasks, desc="Consultando inventario de cada registro")
+
+        # Asignar los resultados al DataFrame
+        data_frame['totalQuantity'] = results
+
+    return data_frame
